@@ -8,10 +8,10 @@ import ee
 import extra_streamlit_components as stx
 import re
 
-if 'well_done' not in st.session_state:
-    st.session_state.well_done = False
-
 def app():
+    if 'well_done' not in st.session_state:
+        st.session_state.well_done = False
+
     st.markdown(
     "<h1 style='text-align: center; color: #565656; background: #99FFFF'> Ice 🧊</h1>",
     unsafe_allow_html=True)
