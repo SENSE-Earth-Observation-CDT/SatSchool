@@ -1,4 +1,3 @@
-from tkinter import N
 import geemap.foliumap as geemap
 import ee
 import eemont

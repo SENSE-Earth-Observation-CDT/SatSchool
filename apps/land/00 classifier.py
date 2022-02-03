@@ -1,4 +1,3 @@
-from cv2 import merge
 import geemap.foliumap as geemap
 import ee
 import eemont
