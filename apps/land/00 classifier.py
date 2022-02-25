@@ -20,6 +20,16 @@ def load_lottieurl(url: str):
 lottie_url_download = "https://assets8.lottiefiles.com/packages/lf20_nay3rc6w.json"
 lottie_download = load_lottieurl(lottie_url_download)
 
+gaul = ee.FeatureCollection("FAO/GAUL/2015/level2")
+jamari = gaul.filter(ee.Filter.eq("ADM2_NAME", 'Jamari'))
+cujubim = gaul.filter(ee.Filter.eq("ADM2_NAME", 'Cujubim'))
+candeias_do_jamari = gaul.filter(ee.Filter.eq("ADM2_NAME", 'Candeias Do Jamari'))
+alto_paraiso = gaul.filter(ee.Filter.eq("ADM2_NAME", 'Alto Paraiso'))
+rio_crespo = gaul.filter(ee.Filter.eq("ADM2_NAME", 'Rio Crespo'))
+ariquemes = gaul.filter(ee.Filter.eq("ADM2_NAME", 'Ariquemes'))
+merged_area = jamari.merge(cujubim).merge(candeias_do_jamari).merge(alto_paraiso).merge(rio_crespo).merge(ariquemes)
+#merged_area = merged_area.map(lambda x: x.buffer(10000))
+
 # INSTRUCTION
 st.info("You are mapping deforestation in Brazil in 2018. This is **really cool** and there should be some information\
           here about it.")
@@ -63,7 +73,7 @@ with cola:
   df_cont = st.container()
 
   protected_area_check = st.checkbox('Show protected areas on the map')
-  measurement_reg_check = st.checkbox('Show region we are measuring deforestation in on the map')
+  #measurement_reg_check = st.checkbox('Show region we are measuring deforestation in on the map')
 
   if reset_points:
     st.session_state.points = []
@@ -80,7 +90,7 @@ with colb:
   image = ee.Algorithms.Landsat.simpleComposite(**{
     'collection': l8.filterDate('2018-01-01', '2018-12-31'),
     'asFloat': True,
-  })
+  })#.clip(merged_area)
 
   bands = ['B2', 'B3', 'B4', 'B5', 'B6', 'B7', 'B10', 'B11']
 
@@ -146,7 +156,8 @@ with colb:
     st.table(df)
 
   # Display the classification result and the input image.
-  Map.setCenter(-62.836, -9.2399, 9)
+  # Map.setCenter(-62.836, -9.2399, 9)
+  Map.centerObject(merged_area,8)
   Map.addLayer(image, {'bands': ['B4', 'B3', 'B2'], 'max': 0.5, 'gamma': 2}, 'Cloudless Landsat-8 imagery 2018')
 
   Map.addLayer(forest_points, {'color':'#90EE90'}, 'training forest points')
@@ -156,23 +167,13 @@ with colb:
     dataset = ee.FeatureCollection('WCMC/WDPA/current/polygons')
     Map.addLayer(dataset, {'color': 'green'}, 'WDPA Protected Areas', True, 0.85)
 
-  gaul = ee.FeatureCollection("FAO/GAUL/2015/level2");
-  jamari = gaul.filter(ee.Filter.eq("ADM2_NAME", 'Jamari'))
-  cujubim = gaul.filter(ee.Filter.eq("ADM2_NAME", 'Cujubim'))
-  candeias_do_jamari = gaul.filter(ee.Filter.eq("ADM2_NAME", 'Candeias Do Jamari'))
-  alto_paraiso = gaul.filter(ee.Filter.eq("ADM2_NAME", 'Alto Paraiso'))
-  rio_crespo = gaul.filter(ee.Filter.eq("ADM2_NAME", 'Rio Crespo'))
-  ariquemes = gaul.filter(ee.Filter.eq("ADM2_NAME", 'Ariquemes'))
-
-  styleParams = {
-    'fillColor': 'b5ffb4',
-    'color': '00909F',
-    'width': 1.0
-  };
-  merged_area = jamari.merge(cujubim).merge(candeias_do_jamari).merge(alto_paraiso).merge(rio_crespo).merge(ariquemes)
-
-  if measurement_reg_check:
-    Map.addLayer(merged_area.style(**styleParams), {'opacity': 0.5}, 'measurement region')
+  # styleParams = {
+  #   'fillColor': 'b5ffb4',
+  #   'color': '00909F',
+  #   'width': 1.0
+  # };
+  #if measurement_reg_check:
+  #  Map.addLayer(merged_area.style(**styleParams), {'opacity': 0.5}, 'measurement region')
 
   if classifier_button:
     #with st.spinner('Doing some classification magic...'):
@@ -206,7 +207,7 @@ with colb:
       stats = areaImage.reduceRegion(**{
         'reducer': ee.Reducer.sum(),
         'geometry': merged_area.geometry(),
-        'scale': 30,
+        'scale': 100,
         'maxPixels': 1e9
       })
 
@@ -243,38 +244,39 @@ with colb:
     st.write(f'The overall (training) accuracy is {train_acc_result:.0f}%. This means that the points you used for the\
       classifier are {train_acc_result:.0f}% accurate when compared to the map produced by the classifier.')
 
-    with st.expander('Read more about your accuracy results:'):
-      cm = np.array(trainAccuracy.getInfo()) #confusion_matrix(y_true, y_pred)
-      cm = (cm.astype('float') / cm.sum(axis=1)[:, np.newaxis])
-      labels_repeated = []
-      for _ in range(np.unique(labels_).shape[0]):
-          labels_repeated.append(np.unique(labels_))
-      source = pd.DataFrame({'predicted class': np.transpose(np.array(labels_repeated)).ravel(),
-                          'true class': np.array(labels_repeated).ravel(),
-                          'fraction': np.round(cm.ravel(), 2)})
-      #st.dataframe(source)
-      heat = alt.Chart(source, height=500, width=500, title="confusion matrix").mark_rect(opacity=0.7).encode(
-          x='predicted class:N',
-          y='true class:N',
-          color=alt.Color('fraction:Q', scale=alt.Scale(scheme='blues')),
-          tooltip="fraction")
+    # with st.expander('Read more about your accuracy results:'):
+    #   cm = np.array(trainAccuracy.getInfo()) #confusion_matrix(y_true, y_pred)
+    #   cm = (cm.astype('float') / cm.sum(axis=1)[:, np.newaxis])
+    #   labels_repeated = []
+    #   for _ in range(np.unique(labels_).shape[0]):
+    #       labels_repeated.append(np.unique(labels_))
+    #   source = pd.DataFrame({'predicted class': np.transpose(np.array(labels_repeated)).ravel(),
+    #                       'true class': np.array(labels_repeated).ravel(),
+    #                       'fraction': np.round(cm.ravel(), 2)})
+    #   #st.dataframe(source)
+    #   heat = alt.Chart(source, height=500, width=500, title="confusion matrix").mark_rect(opacity=0.7).encode(
+    #       x='predicted class:N',
+    #       y='true class:N',
+    #       color=alt.Color('fraction:Q', scale=alt.Scale(scheme='blues')),
+    #       tooltip="fraction")
 
-      st.info('This is a confusion matrix. It shows the number of times a prediction was made for a given class,\
-              and the number of times the prediction was correct. The diagonal shows the number of times the prediction\
-                was correct for that class. The off-diagonal shows the number of times the prediction was correct for a\
-                  different class. The higher the number in the diagonal, the better the prediction. The lower the number\
-                    in the off-diagonal, the better the prediction.')
+    #   st.info('This is a confusion matrix. It shows the number of times a prediction was made for a given class,\
+    #           and the number of times the prediction was correct. The diagonal shows the number of times the prediction\
+    #             was correct for that class. The off-diagonal shows the number of times the prediction was correct for a\
+    #               different class. The higher the number in the diagonal, the better the prediction. The lower the number\
+    #                 in the off-diagonal, the better the prediction.')
 
-      st.altair_chart(heat)
+    #   st.altair_chart(heat)
 
     st.subheader('According to your deforestation classifier:')
-    total_area = 24225
-    forest_area = stats.getInfo()['classification']*1e-6
-    st.metric(label="Amount of area marked as forested in measurement region", value=f'{forest_area:.0f} square kilometres ({forest_area/total_area*100:.0f}%)')
-    st.metric(label="Total area of the measurement region", value=f'{total_area:.0f} square kilometres')
-    #stateArea = merged_area.geometry().area()
-    #stateAreaSqKm = ee.Number(stateArea).divide(1e6).round()
-    #st.write(stateAreaSqKm.getInfo())
+    with st.spinner('Loading...'):
+      total_area = 24225
+      forest_area = stats.getInfo()['classification']*1e-6
+      st.metric(label="Amount of area marked as forested in measurement region", value=f'{forest_area:.0f} square kilometres ({forest_area/total_area*100:.0f}%)')
+      st.metric(label="Total area of the measurement region", value=f'{total_area:.0f} square kilometres')
+      #stateArea = merged_area.geometry().area()
+      #stateAreaSqKm = ee.Number(stateArea).divide(1e6).round()
+      #st.write(stateAreaSqKm.getInfo())
 
   area_ans = st.number_input('How much area in the measured region is not forest? (in sqkm)', step=100, help='Nearest 100 sqkm')
   if area_ans == 8200: #total_area - forest_area
