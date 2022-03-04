@@ -8,26 +8,7 @@ import ee
 import extra_streamlit_components as stx
 import re
 
-if 'well_done' not in st.session_state:
-    st.session_state.well_done = False
-
-# st.markdown(
-# "<h1 style='text-align: center; color: #565656; background: #99FFFF'> Ice 🧊</h1>",
-# unsafe_allow_html=True)
-
-chosen_id = stx.tab_bar(data=[
-    stx.TabBarItemData(id=1, title="Code exercise 1", description="Sentinel 1 difference"),
-    stx.TabBarItemData(id=2, title="Code exercise 2", description="Ice mass balance"),
-    stx.TabBarItemData(id=3, title="Code exercise 3", description="Another one"),
-], default=1)
-#st.info(f"{chosen_id=}")
-
-display, editor = st.columns((1, 1))
-
-INITIAL_CODE = """print('if you print something it goes onto the page!')
-print('Subtract the bedrock topography of Antartica from the elevation of the South Pole')
-
-###############
+CODE_DICT = {'2': '''###############
 bedrock = ee.Image('NOAA/NGDC/ETOPO1').select('bedrock')
 Map.addLayer(bedrock, {'min':-10898, 'max':1000}, 'bedrock')
 
@@ -54,27 +35,8 @@ Map.addLayer(cryosat_dem, visualisation, 'Cryosat DEM')
 ############### PUT SOMETHING BELOW HERE TO SHOW THE SUBTRACTED IMAGE
 Map.addLayer(cryosat_dem.subtract(bedrock), {'min': -4000,'max': 4000,'palette': ['001fff', '00ffff', 'fbff00', 'ff0000']}, 'ice-bedrock difference')
 
-Map.setCenter(0, 0, 4)
-"""
-
-with editor:
-    corr = 3
-    ans = st.text_input('How far (in km) has the ice moved in the radar images from 2016 to 2022?', help='something helpful goes here', max_chars=4)
-    if ans.replace('.','',1).isdigit():
-        ans = float(ans)
-        if ans < corr+corr*0.1 and ans > corr-corr*0.1:
-            st.success('Well done!')
-            if st.session_state.well_done is False:
-                st.balloons()
-            st.session_state.well_done = True
-        else:
-            st.error('Incorrect. Try again.')
-            st.session_state.well_done = False
-
-    st.write('### Code editor')
-
-    st.caption('The code in the box below is given for you. It gives the images that you will be using as code variables.')
-    st.code('''#These are the radar images that you will be using. 
+Map.setCenter(0, 0, 4)''',
+'1':'''#These are the radar images that you will be using. 
 #They are from the Sentinel-1 satellite and can see through clouds.
 s1_2016 = ee.Image('COPERNICUS/S1_GRD/S1A_EW_GRDM_1SSH_20160602T051612_20160602T051716_011527_011973_749B').select('HH')
 s1_2022 = ee.Image('COPERNICUS/S1_GRD/S1B_IW_GRDH_1SSH_20210321T095950_20210321T100015_026111_031D9E_1D62').select('HH')
@@ -89,25 +51,85 @@ difference = s1_2022.subtract(s1_2016)
 
 #You can add the difference to the map like this:
 Map.addLayer(difference, {'min':-5, 'max':5, 'palette': ['001fff', '00ffff', 'fbff00', 'ff0000']}, 'diff')
-''')
 
+Map.setCenter(-14.1394, -5.9002)
+''',
+'3':'''print('something goes here')
+###############
+bedrock = ee.Image('NOAA/NGDC/ETOPO1').select('bedrock')
+Map.addLayer(bedrock, {'min':-10898, 'max':1000}, 'bedrock')'''}
+
+
+if 'well_done' not in st.session_state:
+    st.session_state.well_done = False
+
+# st.markdown(
+# "<h1 style='text-align: center; color: #565656; background: #99FFFF'> Ice 🧊</h1>",
+# unsafe_allow_html=True)
+
+empty = st.empty()
+
+with empty:
+    chosen_id = stx.tab_bar(data=[
+        stx.TabBarItemData(id=1, title="Code exercise 1", description="Sentinel 1 difference"),
+        stx.TabBarItemData(id=2, title="Code exercise 2", description="Ice mass balance"),
+        stx.TabBarItemData(id=3, title="Code exercise 3", description="Another one"),
+    ], default=1, key='orig')
+#st.info(f"{chosen_id=}")
+
+if not st.session_state.well_done and chosen_id != '1':
+   st.warning("You should complete the first exercise before you try the other ones!")
+
+if chosen_id == '1':
+    st.info("In this exercise you are looking at radar images over Antartica. You need to subtract the two images in order to see how much the ice has moved. You can\
+    then use the polyline tool on the map to measure the distance and find your answer.")
+elif chosen_id == '2':
+    st.info("In this exercise you will be using different digital elevation models in order to subtract the ice surface elevation from the underlying bedrock.")
+elif chosen_id == '3':
+    st.info("In this exercise you will do something else. Maybe over the Arctic?")
+
+display, editor = st.columns((1, 1))
+
+INITIAL_CODE = CODE_DICT[str(chosen_id)]
+
+
+with editor:
+    st.write('### Code editor')
+
+    if chosen_id == '1':
+        corr = 3
+        ans = st.text_input('How far (in km) has the ice moved in the radar images from 2016 to 2022?', help='something helpful goes here', max_chars=4)
+        if ans.replace('.','',1).isdigit():
+            ans = float(ans)
+            if ans < corr+corr*0.1 and ans > corr-corr*0.1:
+                st.success('Well done!')
+                if st.session_state.well_done is False:
+                    st.snow()
+                st.session_state.well_done = True
+            else:
+                st.error('Incorrect. Try again.')
+                st.session_state.well_done = False
+                
     st.caption('The code in the box below is run in the browser. You can edit it and see the results on the left.')
     code = st_ace(
             value= INITIAL_CODE,
             language="python",
             theme="github",
-            keybinding="nano",
             font_size=18,
             tab_size=4,
             show_gutter=True,
-            key="ace",
+            key=str(chosen_id)
         )
         
     st.write('Hit `CTRL+ENTER` to refresh')
     st.write('*Remember to save your code separately!*')
+                  
+    with st.expander('Code solution'):
+	    st.caption('The code in the box below is given for you. It gives the images that you will be using as code variables.')
+	    st.code(CODE_DICT[str(chosen_id)])
 
 with display:
-    Map = geemap.Map(locate_control=True, draw_export=False, plugin_Draw=True, add_google_map = False, tiles=None)
+    Map = geemap.Map(draw_export=False, plugin_Draw=True, add_google_map = False, tiles=None)
     #Map.add_basemap("HYBRID")
 
     code = code.replace('print(','st.write(')

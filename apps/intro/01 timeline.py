@@ -8,7 +8,7 @@ CSS_PATH = 'timeline3/css/timeline.css'
 JS_PATH = 'timeline3/js/timeline.js'
 
 SOURCE_TYPE = 'gdocs' # json or gdocs
-GDOCS_PATH = 'https://docs.google.com/spreadsheets/u/1/d/1xuY4upIooEeszZ_lCmeNx24eSFWe0rHe9ZdqH2xqVNk/pubhtml' # example url
+GDOCS_PATH = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTYvmCDzrYgzsRJqCI5hOpkpLsinJrcWJnMZgy5CsSBe7HbTXmWvUZ9GuVwxaD5J1k47SGa8ZsWRTsO/pubhtml' # example url
 JSON_PATH = 'timeline_nlp.json' # example json
 
 TL_HEIGHT = 800 # px

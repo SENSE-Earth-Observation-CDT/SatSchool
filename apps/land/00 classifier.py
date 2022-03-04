@@ -20,25 +20,43 @@ def load_lottieurl(url: str):
 lottie_url_download = "https://assets8.lottiefiles.com/packages/lf20_nay3rc6w.json"
 lottie_download = load_lottieurl(lottie_url_download)
 
-gaul = ee.FeatureCollection("FAO/GAUL/2015/level2")
+'''gaul = ee.FeatureCollection("FAO/GAUL/2015/level2")
 jamari = gaul.filter(ee.Filter.eq("ADM2_NAME", 'Jamari'))
 cujubim = gaul.filter(ee.Filter.eq("ADM2_NAME", 'Cujubim'))
 candeias_do_jamari = gaul.filter(ee.Filter.eq("ADM2_NAME", 'Candeias Do Jamari'))
 alto_paraiso = gaul.filter(ee.Filter.eq("ADM2_NAME", 'Alto Paraiso'))
 rio_crespo = gaul.filter(ee.Filter.eq("ADM2_NAME", 'Rio Crespo'))
 ariquemes = gaul.filter(ee.Filter.eq("ADM2_NAME", 'Ariquemes'))
-merged_area = jamari.merge(cujubim).merge(candeias_do_jamari).merge(alto_paraiso).merge(rio_crespo).merge(ariquemes)
-#merged_area = merged_area.map(lambda x: x.buffer(10000))
+merged_area = jamari.merge(cujubim).merge(candeias_do_jamari).merge(alto_paraiso).merge(rio_crespo).merge(ariquemes)'''
+#merged_area = merged_area.map(lambda x: x.buffer(10000))]
+merged_area = ee.Geometry.Polygon(\
+        [[[-63.63427791340328, -8.677221255746861],\
+          [-63.63427791340328, -9.913191896377663],\
+          [-62.28295955402828, -9.913191896377663],\
+          [-62.28295955402828, -8.677221255746861]]], None, False)    
 
-# INSTRUCTION
-st.info("You are mapping deforestation in Brazil in 2018. This is **really cool** and there should be some information\
-          here about it.")
-st.write("Rainforests have decreased in size primarily due to deforestation. Despite reductions in the deforestation rate\
-   over the last ten years, the Amazon rainforest will be reduced by 40% by 2030 at the current rate. Between May 2000\
-      and August 2006, Brazil lost nearly 150,000 square kilometres (58,000 sq mi) of forest, an area larger than Greece.\
-         According to the Living Planet Report 2010, deforestation continues at an alarming rate.\
-           At the Convention on Biological Diversity's 9th Conference, 67 ministers signed up to help achieve zero net\
-              deforestation by 2020. Due to deforestation the Amazon was a net emitter of greenhouse gas in the 2010s.")
+a,b,c = st.columns([2,1,1]) 
+a.write('''In the time it takes to say 'deforestation', another chunk of forest the size of a football pitch is destroyed.
+
+That’s every two seconds, every single day.
+
+Deforestation is the second largest leading cause of global warming, the rainforest also hosts the most biodiversity on the planet and provides food, livelihoods, and environmental protection from flooding and storms. As well as being the home for many indigenous peoples, who are under threat.
+
+More than half the world's land-based plants and animals, and three-quarters of all birds, live in and around forests.
+ 
+Forests have a big influence on rainfall patterns, water and soil quality and flood prevention too. Millions of people rely directly on forests as their home or for making a living. But the risks from deforestation go even wider. Trees absorb and store carbon dioxide. If forests are cleared, or even disturbed, they release carbon dioxide and other greenhouse gases.  
+''')
+
+st.info("""You are mapping deforestation in Brazil in 2018. This is **really cool** and there should be some information\
+          here about it.       
+          
+          1. Run the classifier to make a rough map of deforestation. Look at the map. Where does the classification work? Where does it not?
+    2. Now click on the satellite image and record the longitude and latitude for different points of forest and not-forest. 
+    3. Add one point of each and run the classifier again. What's changed?  
+    4. How do you make the most accurate deforestation classification using as few points as possible?""")
+
+b.image("https://eoimages.gsfc.nasa.gov/images/imagerecords/145000/145888/br163defores_tmo_amo_2019.gif", width=300)
+c.image("https://eoimages.gsfc.nasa.gov/images/imagerecords/145000/145888/deforestationtimeseriesani_2013_2018.gif", width=300)
 
 cola, colb = st.columns((0.5, 1))
 with cola:
@@ -73,7 +91,7 @@ with cola:
   df_cont = st.container()
 
   protected_area_check = st.checkbox('Show protected areas on the map')
-  #measurement_reg_check = st.checkbox('Show region we are measuring deforestation in on the map')
+  measurement_reg_check = st.checkbox('Show region we are measuring deforestation in on the map')
 
   if reset_points:
     st.session_state.points = []
@@ -167,13 +185,13 @@ with colb:
     dataset = ee.FeatureCollection('WCMC/WDPA/current/polygons')
     Map.addLayer(dataset, {'color': 'green'}, 'WDPA Protected Areas', True, 0.85)
 
-  # styleParams = {
-  #   'fillColor': 'b5ffb4',
-  #   'color': '00909F',
-  #   'width': 1.0
-  # };
-  #if measurement_reg_check:
-  #  Map.addLayer(merged_area.style(**styleParams), {'opacity': 0.5}, 'measurement region')
+  styleParams = {
+     'fillColor': 'b5ffb4',
+     'color': '00909F',
+     'width': 1.0
+   }
+  if measurement_reg_check:
+    Map.addLayer(merged_area, {'opacity': 0.5}, 'measurement region')
 
   if classifier_button:
     #with st.spinner('Doing some classification magic...'):
@@ -206,7 +224,7 @@ with colb:
       # Calculate the area of loss pixels in the merged area.
       stats = areaImage.reduceRegion(**{
         'reducer': ee.Reducer.sum(),
-        'geometry': merged_area.geometry(),
+        'geometry': merged_area,
         'scale': 100,
         'maxPixels': 1e9
       })

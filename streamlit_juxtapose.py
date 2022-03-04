@@ -1,6 +1,6 @@
 import streamlit.components.v1 as components
 
-def juxtapose(img1: str, img2: str, height: int = 1000):  # data
+def juxtapose(img1: str, img2: str, label1: str, label2: str, height: int = 1000):  # data
 
     """Create a new timeline component.
     Parameters
@@ -35,13 +35,13 @@ def juxtapose(img1: str, img2: str, height: int = 1000):  # data
                     src: "'''
         + img1
         + '''",
-                    label: 'img1',
+                    label: '{label1}',
                 },
                 {
                     src: "'''
         + img2
         + """",
-                    label: 'img2',
+                    label: '{label2}',
                 }
             ],
             {
@@ -54,6 +54,8 @@ def juxtapose(img1: str, img2: str, height: int = 1000):  # data
         </script>
     """
     )
+    htmlcode = htmlcode.replace('{label1}', label1)
+    htmlcode = htmlcode.replace('{label2}', label2)
     static_component = components.html(
         htmlcode,
         height=height,

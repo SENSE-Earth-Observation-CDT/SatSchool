@@ -1,6 +1,14 @@
 import geemap.foliumap as geemap
 import ee
 
+st.info("""You are comparing the brightness of stable lights, recorded from nighttime satellite imagery.  Use the sliders below so different years are matched to the red, green, and blue channels in the image.  
+          
+          1. With Red=2013, Green=2003, Blue=1993, look at Shanghai, China. THe image should show a white core, yellow periphery, and red edge. 
+       What does this tell you about urban sprawl?
+    2. In some places, particularly in northern Russia, there are bright dots of different colour, like a Christmas tree. 
+       Zoom and then look at the background Google maps/satellite layer. What is the source of this pattern? 
+    3. Differences in nightime lights mark national boundaries. What can you infer from looking at the borders of eg. North and South Korea?""")
+    
 Map = geemap.Map(center=(48.37, 7.10), zoom=4)
 Map.set_options("HYBRID")
 

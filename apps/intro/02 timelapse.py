@@ -39,8 +39,7 @@ st.title("Create Timelapse")
 
 st.markdown(
     """
-    An interactive web app for creating [Landsat](https://developers.google.com/earth-engine/datasets/catalog/landsat)/[GOES](https://jstnbraaten.medium.com/goes-in-earth-engine-53fbc8783c16) timelapse for any location around the globe. 
-    The app was built using [streamlit](https://streamlit.io), [geemap](https://geemap.org), and [Google Earth Engine](https://earthengine.google.com). For more info, check out my streamlit [blog post](https://blog.streamlit.io/creating-satellite-timelapse-with-streamlit-and-earth-engine). 
+    An interactive web app for creating timelapses for any location around the globe.
 """
 )
 
@@ -82,16 +81,14 @@ with row1_col2:
     collection = st.selectbox(
         "Select a satellite image collection: ",
         [
-            "Any Earth Engine ImageCollection",
             "Landsat TM-ETM-OLI Surface Reflectance",
             "Sentinel-2 MSI Surface Reflectance",
             "Geostationary Operational Environmental Satellites (GOES)",
             "MODIS Vegetation Indices (NDVI/EVI) 16-Day Global 1km",
             "MODIS Gap filled Land Surface Temperature Daily",
             "MODIS Ocean Color SMI",
-            "USDA National Agriculture Imagery Program (NAIP)",
         ],
-        index=2,
+        index=1,
     )
 
     if collection in [
@@ -300,48 +297,16 @@ with row1_col2:
     )
 
     add_outline = st.checkbox(
-        "Overlay an administrative boundary on timelapse", False
+        "Show country boundaries on timelapse", False
     )
 
     if add_outline:
+        overlay_data = "countries"
 
-        with st.expander("Customize administrative boundary", True):
-
-            overlay_options = {
-                "User-defined": None,
-                "Continents": "continents",
-                "Countries": "countries",
-                "US States": "us_states",
-                "China": "china",
-            }
-
-            overlay = st.selectbox(
-                "Select an administrative boundary:",
-                list(overlay_options.keys()),
-                index=2,
-            )
-
-            overlay_data = overlay_options[overlay]
-
-            if overlay_data is None:
-                overlay_data = st.text_input(
-                    "Enter an HTTP URL to a GeoJSON file or an ee.FeatureCollection asset id:",
-                    "https://raw.githubusercontent.com/giswqs/geemap/master/examples/data/countries.geojson",
-                )
-
-            overlay_color = st.color_picker(
-                "Select a color for the administrative boundary:", "#000000"
-            )
-            overlay_width = st.slider(
-                "Select a line width for the administrative boundary:", 1, 20, 1
-            )
-            overlay_opacity = st.slider(
-                "Select an opacity for the administrative boundary:",
-                0.0,
-                1.0,
-                1.0,
-                0.05,
-            )
+        #overlay_data = None
+        overlay_color = "black"
+        overlay_width = 1
+        overlay_opacity = 1
     else:
         overlay_data = None
         overlay_color = "black"
@@ -467,17 +432,8 @@ with row1_col2:
                     "Red/Green/Blue",
                     "NIR/Red/Green",
                     "SWIR2/SWIR1/NIR",
-                    "NIR/SWIR1/Red",
-                    "SWIR2/NIR/Red",
-                    "SWIR2/SWIR1/Red",
-                    "SWIR1/NIR/Blue",
-                    "NIR/SWIR1/Blue",
-                    "SWIR2/NIR/Green",
-                    "SWIR1/NIR/Red",
-                    "SWIR2/NIR/SWIR1",
-                    "SWIR1/NIR/SWIR2",
                 ],
-                index=9,
+                index=0,
             )
 
             frequency = st.selectbox(
@@ -486,15 +442,14 @@ with row1_col2:
                 index=0,
             )
 
-            with st.expander("Customize timelapse"):
+            with st.expander("Customise timelapse"):
 
                 speed = st.slider("Frames per second:", 1, 30, timelapse_speed)
                 dimensions = st.slider(
-                    "Maximum dimensions (Width*Height) in pixels", 768, 2000, 768
+                    "Maximum dimensions (Width*Height) in pixels", 768, 768*2, 768
                 )
-                progress_bar_color = st.color_picker(
-                    "Progress bar color:", "#0000ff"
-                )
+                progress_bar_color = "#0000ff"
+                
                 years = st.slider(
                     "Start and end year:",
                     sensor_start_year,
@@ -502,17 +457,13 @@ with row1_col2:
                     (sensor_start_year, today.year - 1),
                 )
                 months = st.slider("Start and end month:", 1, 12, (1, 12))
-                font_size = st.slider("Font size:", 10, 50, 30)
-                font_color = st.color_picker("Font color:", "#ffffff")
+                font_size = 30
+                font_color = "#ffffff"
                 apply_fmask = st.checkbox(
-                    "Apply fmask (remove clouds, shadows, snow)", True
+                    "Remove clouds, shadows, snow", True
                 )
-                font_type = st.selectbox(
-                    "Select the font type for the title:",
-                    ["arial.ttf", "alibaba.otf"],
-                    index=0,
-                )
-                mp4 = st.checkbox("Save timelapse as MP4", True)
+                font_type = "arial.ttf"
+                mp4 = True
 
             empty_text = st.empty()
             empty_image = st.empty()
@@ -523,7 +474,7 @@ with row1_col2:
 
                 if sample_roi == "Uploaded GeoJSON" and data is None:
                     empty_text.warning(
-                        "Steps to create a timelapse: Draw a rectangle on the map -> Export it as a GeoJSON -> Upload it back to the app -> Click the Submit button. Alternatively, you can select a sample ROI from the dropdown list."
+                        "Steps to create a timelapse: Draw a rectangle on the map -> Export it as a GeoJSON -> Upload it back to the app -> Click the Submit button. Alternatively, you can select a sample region of interest from the dropdown list."
                     )
                 else:
 
@@ -600,10 +551,11 @@ with row1_col2:
                                 loop=0,
                                 mp4=mp4,
                             )
-                    except:
+                    except Exception as e:
                         empty_text.error(
-                            "An error occurred while computing the timelapse. Your probably requested too much data. Try reducing the ROI or timespan."
+                            "An error occurred while computing the timelapse. Your probably requested too much data. Try reducing the region of interest or timespan."
                         )
+                        print(e)
                         st.stop()
 
                     if out_gif is not None and os.path.exists(out_gif):
@@ -623,7 +575,7 @@ with row1_col2:
 
                     else:
                         empty_text.error(
-                            "Something went wrong. You probably requested too much data. Try reducing the ROI or timespan."
+                            "Something went wrong. You probably requested too much data. Try reducing the region of interest or timespan."
                         )
 
     elif collection == "Geostationary Operational Environmental Satellites (GOES)":
@@ -709,7 +661,7 @@ with row1_col2:
             if submitted:
                 if sample_roi == "Uploaded GeoJSON" and data is None:
                     empty_text.warning(
-                        "Steps to create a timelapse: Draw a rectangle on the map -> Export it as a GeoJSON -> Upload it back to the app -> Click the Submit button. Alternatively, you can select a sample ROI from the dropdown list."
+                        "Steps to create a timelapse: Draw a rectangle on the map -> Export it as a GeoJSON -> Upload it back to the app -> Click the Submit button. Alternatively, you can select a sample region of interest from the dropdown list."
                     )
                 else:
                     empty_text.text("Computing... Please wait...")
@@ -783,7 +735,7 @@ with row1_col2:
                                 empty_fire_image.image(out_fire_gif)
                     else:
                         empty_text.text(
-                            "Something went wrong, either the ROI is too big or there are no data available for the specified date range. Please try a smaller ROI or different date range."
+                            "Something went wrong, either the region of interest is too big or there are no data available for the specified date range. Please try a smaller region of interest or different date range."
                         )
 
     elif collection == "MODIS Vegetation Indices (NDVI/EVI) 16-Day Global 1km":
@@ -833,7 +785,7 @@ with row1_col2:
             if submitted:
                 if sample_roi == "Uploaded GeoJSON" and data is None:
                     empty_text.warning(
-                        "Steps to create a timelapse: Draw a rectangle on the map -> Export it as a GeoJSON -> Upload it back to the app -> Click the Submit button. Alternatively, you can select a sample ROI from the dropdown list."
+                        "Steps to create a timelapse: Draw a rectangle on the map -> Export it as a GeoJSON -> Upload it back to the app -> Click the Submit button. Alternatively, you can select a sample region of interest from the dropdown list."
                     )
                 else:
 
@@ -941,7 +893,7 @@ with row1_col2:
 
                 if sample_roi == "Uploaded GeoJSON" and data is None:
                     empty_text.warning(
-                        "Steps to create a timelapse: Draw a rectangle on the map -> Export it as a GeoJSON -> Upload it back to the app -> Click the Submit button. Alternatively, you can select a sample ROI from the dropdown list."
+                        "Steps to create a timelapse: Draw a rectangle on the map -> Export it as a GeoJSON -> Upload it back to the app -> Click the Submit button. Alternatively, you can select a sample region of interest from the dropdown list."
                     )
                 else:
 
@@ -982,7 +934,7 @@ with row1_col2:
                         )
                     except:
                         empty_text.error(
-                            "An error occurred while computing the timelapse. You probably requested too much data. Try reducing the ROI or timespan."
+                            "An error occurred while computing the timelapse. You probably requested too much data. Try reducing the region of interest or timespan."
                         )
 
                     empty_text.text(
@@ -1066,7 +1018,7 @@ with row1_col2:
 
                 if sample_roi == "Uploaded GeoJSON" and data is None:
                     empty_text.warning(
-                        "Steps to create a timelapse: Draw a rectangle on the map -> Export it as a GeoJSON -> Upload it back to the app -> Click the Submit button. Alternatively, you can select a sample ROI from the dropdown list."
+                        "Steps to create a timelapse: Draw a rectangle on the map -> Export it as a GeoJSON -> Upload it back to the app -> Click the Submit button. Alternatively, you can select a sample region of interest from the dropdown list."
                     )
                 else:
 
@@ -1155,7 +1107,7 @@ with row1_col2:
                             )
                     except:
                         empty_text.error(
-                            "Something went wrong. You probably requested too much data. Try reducing the ROI or timespan."
+                            "Something went wrong. You probably requested too much data. Try reducing the region of interest or timespan."
                         )
 
                     if out_gif is not None and os.path.exists(out_gif):
@@ -1177,7 +1129,7 @@ with row1_col2:
 
                     else:
                         st.error(
-                            "Something went wrong. You probably requested too much data. Try reducing the ROI or timespan."
+                            "Something went wrong. You probably requested too much data. Try reducing the region of interest or timespan."
                         )
 
     elif collection == "USDA National Agriculture Imagery Program (NAIP)":
@@ -1229,7 +1181,7 @@ with row1_col2:
 
                 if sample_roi == "Uploaded GeoJSON" and data is None:
                     empty_text.warning(
-                        "Steps to create a timelapse: Draw a rectangle on the map -> Export it as a GeoJSON -> Upload it back to the app -> Click the Submit button. Alternatively, you can select a sample ROI from the dropdown list."
+                        "Steps to create a timelapse: Draw a rectangle on the map -> Export it as a GeoJSON -> Upload it back to the app -> Click the Submit button. Alternatively, you can select a sample region of interest from the dropdown list."
                     )
                 else:
 
@@ -1266,7 +1218,7 @@ with row1_col2:
                         )
                     except:
                         empty_text.error(
-                            "Something went wrong. You either requested too much data or the ROI is outside the U.S."
+                            "Something went wrong. You either requested too much data or the region of interest is outside the U.S."
                         )
 
                     if out_gif is not None and os.path.exists(out_gif):
@@ -1286,5 +1238,5 @@ with row1_col2:
 
                     else:
                         st.error(
-                            "Something went wrong. You either requested too much data or the ROI is outside the U.S."
+                            "Something went wrong. You either requested too much data or the region of interest is outside the U.S."
                         )

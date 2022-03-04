@@ -7,8 +7,24 @@ import pandas as pd
 import streamlit as st
 
 st.title("Sea Surface Temperature")
-df = pd.read_csv('ocean_sst_all.csv')
+df = pd.read_csv('apps/oceans/baltic.csv')
 
+st.write('''The ocean is the biggest habitat on the planet; nearly three quarters of the Earth’s surface is covered by the oceans. Half of all the oxygen we breathe comes from the oceans, with plankton absorbing carbon dioxide and releasing oxygen into the atmosphere by photosynthesis. 
+
+98% of the heat from the sun's rays is absorbed by the oceans. This heat is then moved around the earth via currents, transporting the warm water from the equator around the earth to the poles. This is part of the global thermohaline circulating current, transporting heat from the equator (affecting the Gulf stream and giving us in the UK warm summers!) and cool nutrient-rich water from the poles, which the ocean ecosystems need to survive. Nearly 3 billion humans eat protein from the oceans! 
+
+Even though the oceans are so vast they are a complex ecosystem and with the warming global temperatures due to climate change it is important for us to monitor them. Rising sea temperatures can cause marine heatwaves, leading to toxic algal blooms, coral reef bleaching, and acidification (what we call ocean dead zones). 
+''')
+
+st.info("""You are looking at sea surface temperatures and the amount of Chlorophyll-a present in the oceans. This is **really cool** and there should be some information\
+          here about it.
+          
+       • What is the max sea surface temperature in June 2000 for each of our datasets? 
+    • What is the max temperature in June 2010?  
+    • What is the difference between the summer and winter temperature in the Arctic ocean, the Mediterranean, and the Congo? 
+    • Can you see any trends over the 20 yr timeline? 
+""")
+          
 cola, colb = st.columns([0.25,1])
 
 with cola:
@@ -135,9 +151,12 @@ with colb:
     m.to_streamlit(height=700)
 
 #st.dataframe(df)
-df_data = df[['Atlantic', 'Indian', 'Pacific', 'Arctic', 'date']]
-df_data['date'] = pd.to_datetime(df_data['date'])
-df_data['date'] = df_data['date'].apply(lambda t: t.floor('d'))
+df_data = df[::20]#[['Atlantic', 'Indian', 'Pacific', 'Arctic', 'date']]
+df_data['date'] = pd.to_datetime(df_data['Time'])
+#df_data['date'] = df_data['date'].apply(lambda t: t.floor('d'))
+df_data = df_data.set_index('date')
+df_data = df_data.rolling(7*4).median()
+df_data = df_data.reset_index()
 #df_data = df_data.loc[df_data['Indian'] > 5]
 #df_data = df_data.loc[df_data['Atlantic'] > 5]
 #df_data = df_data.loc[df_data['Pacific'] > 5]
@@ -146,10 +165,11 @@ df_data['date'] = df_data['date'].apply(lambda t: t.floor('d'))
 import altair as alt
 import numpy as np
 
-df_data_pacific = df_data[['date', 'Pacific']]
+#df_data_pacific = df_data[['date', 'Pacific']]
 #df_data_pacific['Pacific'] = df_data_pacific['Pacific'].rolling(window=30).mean()
-st.dataframe(df_data_pacific)
-c = alt.Chart(df_data_pacific).mark_line().encode(
-    x=alt.X('date', axis=alt.Axis(tickCount=30, labelOverlap="greedy",grid=False, labelExpr="datum.value % 100 ? null : datum.label")), y='Pacific', tooltip=['date', 'Pacific'])
+st.dataframe(df_data)
+st.line_chart(df_data[['SST','date']].set_index('date'))
+#c = alt.Chart(df_data).mark_line().encode(
+#    x=alt.X('date', axis=alt.Axis(tickCount=30, labelOverlap="greedy",grid=False, labelExpr="datum.value % 100 ? null : datum.label")), y='SST', tooltip=['date', 'SST'])
 
-st.altair_chart(c, use_container_width=True)
+#st.altair_chart(c, use_container_width=True)
