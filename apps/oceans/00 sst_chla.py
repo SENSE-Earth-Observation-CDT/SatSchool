@@ -7,7 +7,9 @@ import pandas as pd
 import streamlit as st
 
 st.title("Sea Surface Temperature")
-df = pd.read_csv('apps/oceans/baltic.csv')
+df_africa = pd.read_csv('apps/oceans/africa.csv')
+df_baltic = pd.read_csv('apps/oceans/baltic.csv')
+df_mediterranean = pd.read_csv('apps/oceans/mediterranean.csv')
 
 st.write('''The ocean is the biggest habitat on the planet; nearly three quarters of the Earth’s surface is covered by the oceans. Half of all the oxygen we breathe comes from the oceans, with plankton absorbing carbon dioxide and releasing oxygen into the atmosphere by photosynthesis. 
 
@@ -69,15 +71,13 @@ with colb:
         'Sea Surface Temperature')
 
     with st.spinner('Loading...'):
-        atlantic_region = ee.Geometry.Point([-41.1328, 24.8466])
-        indian_region = ee.Geometry.Point([71.0156, -2.4602])
-        pacific_region = ee.Geometry.Point([-140.6250, 7.7110])
-        arctic_region = ee.Geometry.Point([8.4375, 72.7119])
+        africa_region = ee.Geometry.Point(df_africa[['Longitude','Latitude']].iloc[0].values.tolist())
+        baltic_region = ee.Geometry.Point(df_baltic[['Longitude','Latitude']].iloc[0].values.tolist())
+        med_region = ee.Geometry.Point(df_mediterranean[['Longitude','Latitude']].iloc[0].values.tolist())
 
-        atlantic_region = atlantic_region.buffer(100000).bounds()
-        indian_region = indian_region.buffer(100000).bounds()
-        pacific_region = pacific_region.buffer(100000).bounds()
-        arctic_region = arctic_region.buffer(100000).bounds()
+        africa_region = africa_region.buffer(100000).bounds()
+        baltic_region = baltic_region.buffer(100000).bounds()
+        med_region = med_region.buffer(100000).bounds()
 
         # atlantic_ts = ee.ImageCollection('NASA/OCEANDATA/MODIS-Aqua/L3SMI').filterDate(datetime.datetime(2020,1,1), datetime.datetime(2022,1,25))\
         #     .getTimeSeriesByRegion(
@@ -141,16 +141,22 @@ with colb:
         m.add_colorbar(colors=['F2F2F2','00A600'], vmin=0, vmax=1, caption='Chlorophyll-a concentration (milligrammes per cubic metre)')
     #m.add_legend(title='Legend', labels=labels, colors=colors)
 
-    m.addLayer(atlantic_region,{},'North Atlantic')
-    m.addLayer(indian_region,{},'Indian')
-    m.addLayer(pacific_region,{},'Pacific')
-    m.addLayer(arctic_region,{},'Arctic')
+    m.addLayer(africa_region,{},'North Atlantic')
+    m.addLayer(baltic_region,{},'Indian')
+    m.addLayer(med_region,{},'Pacific')
 
     m.addLayerControl()
 
     m.to_streamlit(height=700)
 
-#st.dataframe(df)
+df_africa = df_africa.rename(columns={"SST": "africa"})
+df_baltic  = df_baltic.rename(columns={"SST": "baltic"})
+df_mediterranean = df_mediterranean.rename(columns={"SST": "mediterranean"})
+
+st.dataframe(df_africa)
+st.dataframe(df_baltic)
+
+st.stop()
 df_data = df[::20]#[['Atlantic', 'Indian', 'Pacific', 'Arctic', 'date']]
 df_data['date'] = pd.to_datetime(df_data['Time'])
 #df_data['date'] = df_data['date'].apply(lambda t: t.floor('d'))

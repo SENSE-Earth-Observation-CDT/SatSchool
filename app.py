@@ -33,14 +33,14 @@ stb.set_book_config(menu_title="Main Menu",
                             "Land",
                             "Oceans",
                             "Ice",
-                            "Scores"
+                            "Quiz"
                             ],
                     paths=[
                         "apps/intro",
                         "apps/land",
                         "apps/oceans",
                         "apps/ice.py",
-                        "apps/scores.py",
+                        "apps/quiz.py",
                           ],
                     icons=[
                           "house",
