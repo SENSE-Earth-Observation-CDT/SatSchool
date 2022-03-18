@@ -5,11 +5,15 @@ import streamlit.components.v1 as components
 import datetime
 import pandas as pd
 import streamlit as st
+import altair as alt
+import numpy as np
 
+if 'well_done' not in st.session_state:
+    st.session_state.well_done = False
+    
 st.title("Sea Surface Temperature")
-df_africa = pd.read_csv('apps/oceans/africa.csv')
-df_baltic = pd.read_csv('apps/oceans/baltic.csv')
-df_mediterranean = pd.read_csv('apps/oceans/mediterranean.csv')
+
+norwegian_med_samerica_df = pd.read_csv('apps/oceans/norwegian_med_samerica_df.csv', index_col=False)
 
 st.write('''The ocean is the biggest habitat on the planet; nearly three quarters of the Earth’s surface is covered by the oceans. Half of all the oxygen we breathe comes from the oceans, with plankton absorbing carbon dioxide and releasing oxygen into the atmosphere by photosynthesis. 
 
@@ -71,13 +75,15 @@ with colb:
         'Sea Surface Temperature')
 
     with st.spinner('Loading...'):
-        africa_region = ee.Geometry.Point(df_africa[['Longitude','Latitude']].iloc[0].values.tolist())
-        baltic_region = ee.Geometry.Point(df_baltic[['Longitude','Latitude']].iloc[0].values.tolist())
-        med_region = ee.Geometry.Point(df_mediterranean[['Longitude','Latitude']].iloc[0].values.tolist())
+        #africa_region = ee.Geometry.Point(df_africa[['Longitude','Latitude']].iloc[0].values.tolist())
+        med_region = ee.Geometry.Point(lon=5.0625,lat=39.0625)
+        norwegian_region = ee.Geometry.Point(lat=65.01999, lon=-9.980000)
+        samerica_region = ee.Geometry.Point(lat=-13.553, lon=-32.59)
 
-        africa_region = africa_region.buffer(100000).bounds()
-        baltic_region = baltic_region.buffer(100000).bounds()
+        #africa_region = africa_region.buffer(100000).bounds()
+        norwegian_region = norwegian_region.buffer(100000).bounds()
         med_region = med_region.buffer(100000).bounds()
+        samerica_region = samerica_region.buffer(100000).bounds()
 
         # atlantic_ts = ee.ImageCollection('NASA/OCEANDATA/MODIS-Aqua/L3SMI').filterDate(datetime.datetime(2020,1,1), datetime.datetime(2022,1,25))\
         #     .getTimeSeriesByRegion(
@@ -134,48 +140,83 @@ with colb:
     # colors = [(255, 0, 0), (127, 255, 0), (127, 18, 25), (36, 70, 180), (96, 68, 123)]
     m.add_colorbar(colors=palette, vmin=min_val, vmax=max_val, caption='Sea Surface Temperature (°C)')
 
-    if chla_check_cont.checkbox(label='View Chlorophyll-a concentration'):
-        m.addLayer(
+    #if chla_check_cont.checkbox(label='View Chlorophyll-a concentration'):
+    m.addLayer(
             chla, {'min': 0, 'max': 1, 'palette': ['F2F2F2','00A600'],},
             'Chlorophyll-a', True)
-        m.add_colorbar(colors=['F2F2F2','00A600'], vmin=0, vmax=1, caption='Chlorophyll-a concentration (milligrammes per cubic metre)')
+    m.add_colorbar(colors=['F2F2F2','00A600'], vmin=0, vmax=1, caption='Chlorophyll-a concentration (milligrammes per cubic metre)')
     #m.add_legend(title='Legend', labels=labels, colors=colors)
+    
+    left_layer = geemap.ee_tile_layer(sst, remoteSensingReflectanceVis, name='Sea Surface Temperature')
+    right_layer = geemap.ee_tile_layer(chla, {'min': 0, 'max': 1, 'palette': ['F2F2F2','00A600'],}, name='Chlorophyll-a')
+    m.split_map(left_layer, right_layer)
 
-    m.addLayer(africa_region,{},'North Atlantic')
-    m.addLayer(baltic_region,{},'Indian')
-    m.addLayer(med_region,{},'Pacific')
+    #m.addLayer(africa_region,{},'North Atlantic')
+    m.addLayer(norwegian_region,{'color':'blue'},'Norwegian Sea')
+    m.addLayer(med_region,{'color':'orange'},'Mediterranean Sea')
+    m.addLayer(samerica_region,{'color':'green'},'South Atlantic Ocean')
 
     m.addLayerControl()
 
     m.to_streamlit(height=700)
 
-df_africa = df_africa.rename(columns={"SST": "africa"})
-df_baltic  = df_baltic.rename(columns={"SST": "baltic"})
-df_mediterranean = df_mediterranean.rename(columns={"SST": "mediterranean"})
 
-st.dataframe(df_africa)
-st.dataframe(df_baltic)
-
-st.stop()
-df_data = df[::20]#[['Atlantic', 'Indian', 'Pacific', 'Arctic', 'date']]
+df_data = norwegian_med_samerica_df#[::20]#[['Atlantic', 'Indian', 'Pacific', 'Arctic', 'date']]
 df_data['date'] = pd.to_datetime(df_data['Time'])
-#df_data['date'] = df_data['date'].apply(lambda t: t.floor('d'))
-df_data = df_data.set_index('date')
-df_data = df_data.rolling(7*4).median()
-df_data = df_data.reset_index()
-#df_data = df_data.loc[df_data['Indian'] > 5]
-#df_data = df_data.loc[df_data['Atlantic'] > 5]
-#df_data = df_data.loc[df_data['Pacific'] > 5]
-#df_data = df_data.loc[df_data['Arctic'] > 5]
+del df_data['Time']
 
-import altair as alt
-import numpy as np
 
-#df_data_pacific = df_data[['date', 'Pacific']]
-#df_data_pacific['Pacific'] = df_data_pacific['Pacific'].rolling(window=30).mean()
-st.dataframe(df_data)
-st.line_chart(df_data[['SST','date']].set_index('date'))
-#c = alt.Chart(df_data).mark_line().encode(
-#    x=alt.X('date', axis=alt.Axis(tickCount=30, labelOverlap="greedy",grid=False, labelExpr="datum.value % 100 ? null : datum.label")), y='SST', tooltip=['date', 'SST'])
+st.info("""Use the slider to add and subtract an offset from the sea surface temperatures in the
+different regions. 
+          
+       • What are the average sea surface temperatures in the different regions (over the last 13 years) to the nearest degree?
+""")
 
-#st.altair_chart(c, use_container_width=True)
+a, b = st.columns([0.25,1])
+#norwegian_offset = a.slider("Select norwegian offset", -25,25,0)
+#med_offset = a.slider("Select Mediterranean offset", -25,25,0)
+#med_offset = a.slider("Select Mediterranean offset", -25,25,0)
+
+#df_data['SST_norwegian'] += norwegian_offset
+#df_data['SST_med'] += med_offset
+
+df_data_melted = pd.melt(df_data, id_vars=['date'])
+df_data_melted = df_data_melted[df_data_melted['date'] >= datetime.datetime(2006,1,1)]
+
+c = alt.Chart(df_data_melted, title='Measurements of sea surface temperatures since 2008').mark_line().encode(
+     x='date', y='value',color='variable').interactive()
+
+b.altair_chart(c, use_container_width=True)
+#b.write(f"The average value of norwegian sea surface temperatures offset by {norwegian_offset}°C is {df_data['SST_norwegian'].mean():.2f}°C.")
+#b.write(f"The average value of Mediterranean sea surface temperatures offset by {med_offset}°C is {df_data['SST_med'].mean():.2f}°C.")
+
+form = a.form("my_form")
+norwegian_ans = form.number_input("What is the average Norwegian sea surface temperature?", min_value=-27, max_value=27, value=0, step=1, help='Average sea surface temperature in the norwegian since 2006, in °C')
+med_ans = form.number_input("What is the average Mediterranean sea surface temperature?", min_value=-27, max_value=27, value=0, step=1, help='Average sea surface temperature in the Mediterranean since 2008, in °C')
+samerica_ans = form.number_input("What is the average sea surface temperature for the South Atlantic Ocean?", min_value=-27, max_value=27, value=0, step=1, help='Average sea surface temperature in the South Atlantic Ocean since 2006, in °C')
+submit = form.form_submit_button("Check answers")
+
+norwegian_median = df_data['SST_norwegian'].median()
+med_median = df_data['SST_med'].median()
+samerica_median = df_data['SST_samerica'].median()
+
+#st.write(norwegian_median, med_median, samerica_median)
+
+tol = 2 #correct answer within +/- tol degrees
+if submit:
+    if norwegian_ans <= norwegian_median-tol or norwegian_ans <= norwegian_median+tol:
+        if med_ans >= med_median-tol and med_ans <= med_median+tol:
+            if samerica_ans >= samerica_median-tol and samerica_ans <= samerica_median+tol:
+                if st.session_state.well_done is False:
+                    st.balloons()
+                a.success('Well done!')
+                st.session_state.well_done = True
+            else:
+                a.error('Almost! Double-check your South Atlantic Ocean answer.')
+                st.session_state.well_done = False
+        else:
+            a.error('Incorrect. Double-check your Mediterranean Sea answer and try again.')
+            st.session_state.well_done = False
+    else:
+        a.error('Incorrect. Double-check your Mediterranean Sea answer and try again.')
+        st.session_state.well_done = False

@@ -40,7 +40,7 @@ a.write('''In the time it takes to say 'deforestation', another chunk of forest 
 
 That’s every two seconds, every single day.
 
-Deforestation is the second largest leading cause of global warming, the rainforest also hosts the most biodiversity on the planet and provides food, livelihoods, and environmental protection from flooding and storms. As well as being the home for many indigenous peoples, who are under threat.
+Deforestation is the second largest leading cause of global warming. The rainforest also hosts the most biodiversity on the planet and provides food, livelihoods, and environmental protection from flooding and storms. As well as being the home for many indigenous peoples, who are under threat.
 
 More than half the world's land-based plants and animals, and three-quarters of all birds, live in and around forests.
  
