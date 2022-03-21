@@ -24,7 +24,7 @@ hide_table_row_index = """
 st.markdown(hide_table_row_index, unsafe_allow_html=True)
 
 i,j,_ = st.columns([1,1,5])
-if i.button("Start Quiz", key='start_quiz', disabled=st.session_state['quiz_active']):
+if i.button("Start quiz", key='start_quiz', disabled=st.session_state['quiz_active']):
     st.session_state['quiz_active'] = True
     st.session_state['total_score'] = 0
     st.session_state['count'] = 0

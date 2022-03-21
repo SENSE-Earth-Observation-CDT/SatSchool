@@ -48,7 +48,7 @@ def show_leaderboard(empty_node, show_results=False):
 
             df_leaderboard = get_all_leaderboard()
             i.subheader('Leaderboard')
-            i.table(df_leaderboard.sort_values(by='Final score:', ascending=False).style.set_table_styles(
+            i.table(df_leaderboard.sort_values(by='Final score', ascending=False).style.set_table_styles(
             [{
                 'selector': 'th',
                 'props': [
@@ -57,7 +57,9 @@ def show_leaderboard(empty_node, show_results=False):
             }]))
             
             if show_results:
-                df = pd.DataFrame({'Name': st.session_state["name"], 'Final score:': st.session_state['total_score'], 'Questions answered:': st.session_state['count']}, index=[0])
+                if not isinstance(st.session_state['total_score'] , float):
+                    st.session_state['total_score'] = 0
+                df = pd.DataFrame({'Name': st.session_state["name"], 'Final score': st.session_state['total_score'], 'Questions answered': st.session_state['count'], 'Date': datetime.today().strftime("%d/%m/%Y")}, index=[0])
                 g.table(df)
                 if st.button('Submit my score'):
                     with st.spinner(''):

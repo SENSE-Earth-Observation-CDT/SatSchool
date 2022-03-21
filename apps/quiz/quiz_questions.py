@@ -20,7 +20,7 @@ quiz_questions = [
                    "Harm to the local economies":False,
                    "Uprooting indigenous people":False,
                    "Threaten biodiversity":False,
-                   "All of the above":True,
+                   "All of the options":True,
                    }},
                   
 {'question':"The rainforest houses incredible biodiversity. Which of these is **not** a real rainforest resident?",
@@ -73,8 +73,8 @@ quiz_questions = [
                   'options':{
                    "Run off from the land": False,
                    "Precipitation": False,
-                   "Sea ice melting": True,
-                   "Evaporation": False,
+                   "Sea ice melting": False,
+                   "Evaporation": True,
                   }},
 
 {'question':"Where is the majority of the permafrost in the world?",
