@@ -7,6 +7,8 @@ import random
 from apps.quiz.quiz_questions import quiz_questions
 from apps.quiz.quiz_functions import *
 
+row = None
+
 if 'correct' not in st.session_state.keys():
     st.session_state['correct'] = None
 if "quiz_active" not in st.session_state.keys():
@@ -68,7 +70,11 @@ if st.session_state['quiz_active']:
     else:
         with question_empty:
             with st.container():
-                row = random.choice(quiz_questions)
+                row_new = random.choice(quiz_questions)
+                while row_new == row:
+                    row_new = random.choice(quiz_questions)
+                row = row_new
+                
                 st.markdown(f"Question {st.session_state['count']+1}: {row['question']}")
                 a,b,c = st.columns([1,1,6])
 
@@ -76,7 +82,6 @@ if st.session_state['quiz_active']:
                 random.shuffle(options)
                 #st.write(options)
                 if len(options) == 2:
-                    ans = True if random.random() > 0.5 else False
                     st.button(options[0], on_click=answer, args=(str(row['options'][options[0]]),))
                     st.button(options[1], on_click=answer, args=(str(row['options'][options[1]]),))
                 elif len(options) == 3:

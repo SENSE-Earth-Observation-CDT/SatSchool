@@ -80,7 +80,52 @@ quiz_questions = [
 {'question':"Where is the majority of the permafrost in the world?",
                   'options': {
                    "Arctic": True,
-                   "Antartica": False,
-                  }}
+                   "Antarctica": False,
+                  }},
+                  
+{'question':"What is the altitude of a geostationary satellite?",
+                  'options': {
+                   "35,786 km": True,
+                   "17,786 km": False,
+                   "1,778 km": False,
+                   "3,578 km": False,
+                  }},
+                  
+{'question':"What type of satellite has an active sensor?",
+                  'options': {
+                   "Radar": True,
+                   "Hyperspectral": False,
+                   "Optical": False,
+                   "Thermal": False,
+                  }},
 
+{'question':"What percentage of the electromagnetic spectrum are we able to see with our own eyes?",
+                  'options': {
+                   "0.0035%": True,
+                   "0.035%": False,
+                   "0.35%": False,
+                   "3.5%": False,
+                  }},
+                  
+{'question':"As plants become more stressed, they reflect near infrared wavelengths less strongly.",
+                  'options': {
+                   "True": True,
+                   "False": False,
+                  }},
+                  
+{'question':"Remote sensing techniques make use of the properties of ______________ emitted, reflected or diffracted by the sensed objects?",
+                  'options': {
+                   "Electromagnetic waves": True,
+                   "Sound waves": False,
+                   "Wind waves": False,
+                   "Electric waves": False,
+                  }},
+                 
+{'question':"Which type of remote sensing uses its own source of electromagnetic energy?",
+                  'options': {
+                   "Active": True,
+                   "Passive": False,
+                   "Both": False,
+                   "None": False,
+                  }},
 ]
