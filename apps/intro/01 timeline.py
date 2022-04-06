@@ -13,6 +13,7 @@ JSON_PATH = 'timeline_nlp.json' # example json
 
 TL_HEIGHT = 800 # px
 
+st.title('History of Earth Observation')
 
 # load data
 json_text = ''
@@ -52,8 +53,8 @@ htmlcode = css_block + '''
         timeline = new TL.Timeline('timeline-embed', '''+source_param+''', additionalOptions);
     </script>'''
 
-#components.html(htmlcode, height=TL_HEIGHT,)
+components.html(htmlcode, height=TL_HEIGHT,)
 
 #components.iframe('https://demos.mapbox.com/scrollytelling/', height=800, scrolling=True)
 
-components.iframe('https://storymaps.arcgis.com/stories/9f4633d4c06343e2bbeafd9e1982ad94', height=800, scrolling=True)
+#components.iframe('https://storymaps.arcgis.com/stories/9f4633d4c06343e2bbeafd9e1982ad94', height=800, scrolling=True)

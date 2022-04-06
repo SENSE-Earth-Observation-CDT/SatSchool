@@ -39,7 +39,7 @@ st.title("Create Timelapse")
 
 st.markdown(
     """
-    An interactive web app for creating timelapses for any location around the globe.
+    An interactive web app for creating timelapses for any location around the globe. Created by Qiusheng Wu.
 """
 )
 
@@ -291,7 +291,7 @@ with row1_col2:
         st.session_state["palette"] = eval(palette)
 
     sample_roi = st.selectbox(
-        "Select a sample ROI or upload a GeoJSON file:",
+        "Select a sample region of interest, or upload a GeoJSON file:",
         roi_options,
         index=0,
     )
@@ -321,7 +321,7 @@ with row1_col1:
         video_empty = st.empty()
 
     data = st.file_uploader(
-        "Upload a GeoJSON file to use as an ROI. Customize timelapse parameters and then click the Submit button 😇👇",
+        "Upload a GeoJSON file to use as a region of interest. Customize timelapse parameters and then click the Submit button 😇👇",
         type=["geojson", "kml", "zip"],
     )
 

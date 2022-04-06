@@ -47,8 +47,7 @@ More than half the world's land-based plants and animals, and three-quarters of 
 Forests have a big influence on rainfall patterns, water and soil quality and flood prevention too. Millions of people rely directly on forests as their home or for making a living. But the risks from deforestation go even wider. Trees absorb and store carbon dioxide. If forests are cleared, or even disturbed, they release carbon dioxide and other greenhouse gases.  
 ''')
 
-st.info("""You are mapping deforestation in Brazil in 2018. This is **really cool** and there should be some information\
-          here about it.       
+st.info("""You are mapping deforestation in Brazil in 2018.
           
           1. Run the classifier to make a rough map of deforestation. Look at the map. Where does the classification work? Where does it not?
     2. Now click on the satellite image and record the longitude and latitude for different points of forest and not-forest. 

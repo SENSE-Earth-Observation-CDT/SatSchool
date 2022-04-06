@@ -157,7 +157,6 @@ with empty:
     chosen_id = stx.tab_bar(data=[
         stx.TabBarItemData(id=1, title="Code exercise 1", description="Sentinel 1 difference"),
         stx.TabBarItemData(id=2, title="Code exercise 2", description="Ice mass balance"),
-        stx.TabBarItemData(id=3, title="Code exercise 3", description="Another one"),
     ], default=1, key='orig')
 #st.info(f"{chosen_id=}")
 

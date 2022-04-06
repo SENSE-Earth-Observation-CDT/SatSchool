@@ -22,8 +22,7 @@ st.write('''The ocean is the biggest habitat on the planet; nearly three quarter
 Even though the oceans are so vast they are a complex ecosystem and with the warming global temperatures due to climate change it is important for us to monitor them. Rising sea temperatures can cause marine heatwaves, leading to toxic algal blooms, coral reef bleaching, and acidification (what we call ocean dead zones). 
 ''')
 
-st.info("""You are looking at sea surface temperatures and the amount of Chlorophyll-a present in the oceans. This is **really cool** and there should be some information\
-          here about it.
+st.info("""You are looking at sea surface temperatures and the amount of Chlorophyll-a present in the oceans.
           
        • What is the max sea surface temperature in June 2000 for each of our datasets? 
     • What is the max temperature in June 2010?  

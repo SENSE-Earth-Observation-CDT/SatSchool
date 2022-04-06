@@ -14,7 +14,7 @@ st.title('SatSchool - Hands on with Data')
 a,b = st.columns([0.3,0.5])
 
 with a:
-    st_lottie(lottie_satschool, key="lottie_satschool", speed=0.5, loop=True, quality='high', width=400)
+    st_lottie(lottie_satschool, key="lottie_satschool", speed=0.5, loop=False, quality='high', width=400)
    
 b.markdown('''Welcome to Sat School. We like space and satellites. This super duper cool website is fun and easy to use. You'll use satellite data in your browser to look at interesting stuff. Wow! 🚀🚀🚀
 
