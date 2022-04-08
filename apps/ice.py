@@ -214,6 +214,7 @@ with editor:
 
 with display:
     Map = geemap.Map(draw_export=False, plugin_Draw=True, add_google_map = False, tiles=None)
+    Map.addLayer(ee.Image())
     #Map.add_basemap("HYBRID")
 
     code = code.replace('print(','st.write(')
@@ -227,6 +228,12 @@ with display:
                 COMMA_MATCHER = re.compile(r",(?=(?:[^\"']*[\"'][^\"']*[\"'])*[^\"']*$)")
                 args = COMMA_MATCHER.split(line_suffix)
                 #st.write(args)
+                if args[0][-1] == ')':
+                    first_arg = args[0][:-1]
+                    args = []
+                    args.append(first_arg)
+                    args.append(')')
+
                 first_arg = args[0] + proj_change + ','
                 new_line = 'Map.addLayer(' + first_arg + ','.join(args[1:])
                 #st.write('line', line)

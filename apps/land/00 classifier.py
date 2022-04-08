@@ -50,9 +50,10 @@ Forests have a big influence on rainfall patterns, water and soil quality and fl
 st.info("""You are mapping deforestation in Brazil in 2018.
           
           1. Run the classifier to make a rough map of deforestation. Look at the map. Where does the classification work? Where does it not?
-    2. Now click on the satellite image and record the longitude and latitude for different points of forest and not-forest. 
-    3. Add one point of each and run the classifier again. What's changed?  
-    4. How do you make the most accurate deforestation classification using as few points as possible?""")
+    2. Now, using the 'Draw a marker tool', add markers to the map.
+    3. Click on the placed markers to find the longitude and latitude for different points of forest and not-forest. 
+    4. Add one point of each using the input on the left hand side, and then rerun the classifier. How does the classification change?  
+    5. How do you make the most accurate deforestation classification using as few points as possible?""")
 
 b.image("https://eoimages.gsfc.nasa.gov/images/imagerecords/145000/145888/br163defores_tmo_amo_2019.gif", width=300)
 c.image("https://eoimages.gsfc.nasa.gov/images/imagerecords/145000/145888/deforestationtimeseriesani_2013_2018.gif", width=300)

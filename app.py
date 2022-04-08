@@ -2,6 +2,7 @@ import streamlit as st
 
 import streamlit_book as stb
 import geemap
+from pathlib import Path
 #geemap.ee_initialize()
 
 
@@ -21,9 +22,8 @@ footer {visibility: hidden;}
 """
 st.markdown(hide_streamlit_style, unsafe_allow_html=True) 
 
-# A dictionary of apps in the format of {"App title": "App icon"}
-# More icons can be found here: https://icons.getbootstrap.com
-apps = {"Home": "house", "Introduction": "intro", "Land": "land", "Oceans": "oceans", "Ice": "ice", "Scores": "trophy"}
+# Set multipage
+current_path = Path(__file__).parent.absolute()
 
 # Streamit book properties
 stb.set_book_config(menu_title="Main Menu",
@@ -36,11 +36,11 @@ stb.set_book_config(menu_title="Main Menu",
                             "Quiz"
                             ],
                     paths=[
-                        "apps/intro",
-                        "apps/land",
-                        "apps/oceans",
-                        "apps/ice.py",
-                        "apps/quiz.py",
+                        current_path / "apps/intro",
+                        current_path / "apps/land",
+                        current_path / "apps/oceans",
+                        current_path / "apps/ice.py",
+                        current_path / "apps/quiz.py",
                           ],
                     icons=[
                           "house",

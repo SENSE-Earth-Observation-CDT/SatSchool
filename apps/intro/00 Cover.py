@@ -16,10 +16,18 @@ a,b = st.columns([0.3,0.5])
 with a:
     st_lottie(lottie_satschool, key="lottie_satschool", speed=0.5, loop=False, quality='high', width=400)
    
-b.markdown('''Welcome to Sat School. We like space and satellites. This super duper cool website is fun and easy to use. You'll use satellite data in your browser to look at interesting stuff. Wow! 🚀🚀🚀
+b.markdown("""Welcome to the 'Hands on with Data' module as part of SatSchool. 🚀🚀🚀
 
-This web app illustrates the use of the satschool template for teaching and learning. In this particular web app, we focus on the environmental applications of Earth Observation data.
+For the main SatSchool website, please visit **[https://satschool-outreach.github.io](https://satschool-outreach.github.io)**.
 
-<img src="https://www.gim-international.com/cache/a/f/b/3/2/afb32cbe5b80419c8de0d63398cfb5c661498273.jpeg" alt="Sentinel 2" width="700">
 
-<br>Adding new pages is simple, modular, and mostly requires no or little code!''', unsafe_allow_html=True)
+
+In this module you will learn how to manipulate and understand data from satellites in a range of environmental contexts. It's your chance to get hands on with satellite data!
+
+You will learn:
+
+* How scientists work with satellite data to better understand different parts of the Earth system
+* How to work with different kinds of satellite data yourself and the types of information it contains
+* How to interpret maps and graphs displaying different types of environmental data
+
+<img src="https://www.gim-international.com/cache/a/f/b/3/2/afb32cbe5b80419c8de0d63398cfb5c661498273.jpeg" alt="Sentinel 2" width="700">""", unsafe_allow_html=True)
